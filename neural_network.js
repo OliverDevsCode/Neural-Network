@@ -76,14 +76,21 @@ class NeuralNetwork{
 
         let error = normalizedOutputs.map((out, i) => out - target[i]);
 
-        // Backpropagation (Basic Gradient Descent)
-        this.updateWeights(this.output_weights, error, this.layer_two_neurons, learningRate);
-        // this.updateWeights(this.layer_two_weights, error, this.layer_one_neurons, learningRate);
+        const outputMatrix = new Matrix(this.output_neurons.length,1,this.output_neurons);
+        const targetMatrix = new Matrix(target.length,1,target)
+        const errorMatrix = new Matrix(this.output_neurons.length,1,subtract(targetMatrix,outputMatrix))
+        if(i == iterations-1){
+          console.log("Output Neurons")
+          console.table(outputMatrix.matrix)
+          console.table(errorMatrix.matrix)
+        }
 
-        // console.log(`Correct ${this.correct_guesses}/${iterations}, Predicted: ${prediction.index}, Expected: ${expectedLabel}`);
-        // this.layer_one_weights = this.createWeights(this.layer_one_weights.length,this.input_neurons.length);
-        // this.layer_two_weights = this.createWeights(this.layer_two_weights.length,this.layer_one_weights.length);
-        // this.output_weights = this.createWeights(this.output_neurons.length,this.layer_two_weights.length);
+        // Backpropagation (Basic Gradient Descent)
+        this.updateWeights(this.output_weights, errorMatrix.matrix, this.layer_two_neurons, learningRate);
+        // this.updateWeights(this.layer_two_weights, error, this.layer_one_neurons, learningRate);
+        // this.updateWeights(this.layer_one_weights, error, this.input_neurons, learningRate);
+
+        // Backpropagation MY DESIGN TEST
 
         this.output_biases = new Array(this.output_neurons.length).fill(0);
         clear()
@@ -126,12 +133,18 @@ class NeuralNetwork{
         if(prediction.index == expectedLabel){
           this.correct_guesses ++
         }
+        if(iterations == 1){
+          console.log("Output Neurons")
+          console.table(this.output_neurons)
+          console.log(`Answer: ${prediction.index}, Probability: ${prediction.probability}`)
+        }
         this.output_biases = new Array(this.output_neurons.length).fill(0);
         clear()
         this.input_neurons = []
     }
     console.log(`Correct ${this.correct_guesses}/${iterations}`);
     console.log(JSON.stringify(this.softmax(this.output_neurons)));
+    return this.correct_guesses
   }
 
   async forward(neurons,neurons_2,weights,biases){
@@ -148,11 +161,22 @@ class NeuralNetwork{
     return weightedNeurons
   }
 
+  async backpropagation(neuron,next_neurons,errors,learningRate){
+
+  }
+
+    /**
+   * Adjusts weights based on error rates.
+   * @param {array} outputs output neurons array
+   * @param {array} errors loss calculation array
+   */
+
+
   updateWeights(weights, error, previousLayerNeurons, learningRate) {
     // console.log(error)//for debug
     for (let i = 0; i < weights.length; i++) {
         for (let j = 0; j < previousLayerNeurons.length; j++) {
-            weights[i][j] -= learningRate * error[i] * previousLayerNeurons[j];
+            weights[i][j] += learningRate * error[i] * previousLayerNeurons[j];
         }
     }
 }
@@ -168,6 +192,23 @@ class NeuralNetwork{
     const exps = arr.map(x => Math.exp(x - max));
     const sum = exps.reduce((a, b) => a + b, 0);
     return exps.map(exp => exp / sum);
+  }
+
+  normaliseOutputs(arr){
+    let total =0;
+    arr.forEach(activation => {
+      total+= activation
+    });
+    let normalised = []
+    arr.forEach(activation => {
+      normalised.push(activation/total)
+    });
+    return normalised
+  }
+
+  derivativeSigmoid(val){
+    let y = this.Sigmoid(val) * (1-this.Sigmoid(val))
+    return y
   }
 
   Sigmoid(val){
@@ -212,8 +253,7 @@ class NeuralNetwork{
   }
 
   processImage(){
-    // console.log("Processing Image")//pc cant handle log
-    resizeCanvas(28,28)
+    console.log("Processing Image")
     background(255);
     image(dataset, 0, 0, 28, 28)
     loadPixels();
