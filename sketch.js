@@ -16,11 +16,12 @@ async function setup() {
   image(dataset, 0, 0, 28, 28)
   network = new NeuralNetwork(784,16,16,10)
   console.log("Training....")
-  await network.train(1,trainDigit,0.01,trainDigit)
+  await network.train(1000,trainDigit,0.01,trainDigit)
   console.log("Testing....")
-  await network.test(1,testDigit,testDigit)
+  await network.test(100,testDigit,testDigit)
 
-  // await startTraining(1);
+  // await startTraining(10000);
+  // await testRandom(100)
 
   // await network.test(1,7,'mineDigits')
 

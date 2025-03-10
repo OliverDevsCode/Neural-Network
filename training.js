@@ -1,19 +1,19 @@
 async function startTraining(sampleSize){
+  console.log(`Training ${trainDigit}`)
   for(let i =0 ; i < sampleSize; i++){
     let trainDigit = randomInt(0,9)
-    console.log(`Training ${trainDigit}`)
-    await network.train(40,trainDigit,0.01,trainDigit)
+    await network.train(50,trainDigit,0.01,trainDigit)
   }
 }
 
 async function testRandom(sampleSize){
   let success =0;
+  console.log(`Testing ${trainDigit}`)
   for(let i =0; i < sampleSize; i++){
     let testDigit = randomInt(0,9)
-    console.log(`Testing ${trainDigit}`)
     success += await network.test(40,testDigit,testDigit)
   }
-  console.log((success/sampleSize)*(40*sampleSize),"%")
+  console.log((success))
 }
 
 function randomInt(min,max){
