@@ -34,34 +34,30 @@ class NeuralNetwork{
 
   }
 
-  async train(iterations,expectedLabel,learningRate,datasetFrame){
+  async train(iterations,learningRate){
     this.correct_guesses = 0
     for(let i =0; i < iterations; i++){
+
+        //random number class - label
+        let expectedLabel = randomInt(0,9);
+        //random number png
+        let png_position = randomInt(0,10000);
+
         //get inputs
-        await this.loadnextData(i,datasetFrame)
-        // console.log("Input Neurons:")//for debug
-        // console.log(JSON.stringify(this.input_neurons))//for debug
+        await this.loadnextData(png_position,expectedLabel)
 
         //first layer * by weights + biases
         this.layer_one_neurons = await this.forward(this.input_neurons,this.layer_one_weights.length,this.layer_one_weights,this.layer_one_biases)
-        // console.log("First Layer Neurons:")//for debug
-        // console.log(JSON.stringify(this.layer_one_neurons))//for debug
 
         //first layer to second layer 
         this.layer_two_neurons = await this.forward(this.layer_one_neurons,this.layer_two_weights.length,this.layer_two_weights,this.layer_two_biases)
-        // console.log("Second Layer Neurons:")//for debug
-        // console.log(JSON.stringify(this.layer_two_neurons))//for debug
 
         //second to final layer
         this.output_neurons = await this.forward(this.layer_two_neurons,this.output_weights.length,this.output_weights,this.output_biases)
-        // console.log("Output Neurons:")//for debug
-        // console.log(JSON.stringify(this.output_neurons))//for debug
 
         const normalizedOutputs = this.softmax(this.output_neurons);
-        // console.log("Output Normalised Neurons:")//for debug
-        // console.log(JSON.stringify(normalizedOutputs))//for debug
+
         const prediction = this.getPrediction(normalizedOutputs);
-        // console.log("Predicted class:", prediction.index, "with probability:", prediction.probability);
 
         // console.log("predicted",prediction)
         if(prediction.index == expectedLabel){
@@ -76,29 +72,21 @@ class NeuralNetwork{
 
         let error = normalizedOutputs.map((out, i) => out - target[i]);
 
-        const outputMatrix = new Matrix(this.output_neurons.length,1,this.output_neurons);
-        const targetMatrix = new Matrix(target.length,1,target)
-        const errorMatrix = new Matrix(this.output_neurons.length,1,subtract(targetMatrix,outputMatrix))
-        if(iterations == 1 ){
-          console.log("Output Neurons")
-          console.table(outputMatrix.matrix)
-          console.table(errorMatrix.matrix)
-        }
-
-        // Backpropagation (Basic Gradient Descent)
-        // this.updateWeights(this.output_weights, errorMatrix.matrix, this.layer_two_neurons, learningRate);
-        // this.updateWeights(this.layer_two_weights, error, this.layer_one_neurons, learningRate);
-        // this.updateWeights(this.layer_one_weights, error, this.input_neurons, learningRate);
+        // if(iterations == 1 ){
+        //   console.log("Output Neurons")
+        //   console.table(outputMatrix.matrix)
+        //   console.table(errorMatrix.matrix)
+        // }
 
         // Backpropagation MY DESIGN TEST
-        this.backpropagation(error,learningRate);
+        this.backpropagation(error,learningRate,target);
 
         this.output_biases = new Array(this.output_neurons.length).fill(0);
         clear()
         this.input_neurons = []
     }
     console.log(`Correct ${this.correct_guesses}/${iterations}`);
-    console.log(JSON.stringify(this.softmax(this.output_neurons)));
+    console.log(JSON.stringify(this.output_neurons));
   }
 
   async test(iterations,expectedLabel,datasetFrame){
@@ -106,45 +94,34 @@ class NeuralNetwork{
     for(let i =0; i < iterations; i++){
         //get inputs
         await this.loadnextData(i,datasetFrame)
-        // console.log("Input Neurons:")//for debug
-        // console.log(JSON.stringify(this.input_neurons))//for debug
-
+ 
         //first layer * by weights + biases
         this.layer_one_neurons = await this.forward(this.input_neurons,this.layer_one_weights.length,this.layer_one_weights,this.layer_one_biases)
-        // console.log("First Layer Neurons:")//for debug
-        // console.log(JSON.stringify(this.layer_one_neurons))//for debug
 
         //first layer to second layer 
         this.layer_two_neurons = await this.forward(this.layer_one_neurons,this.layer_two_weights.length,this.layer_two_weights,this.layer_two_biases)
-        // console.log("Second Layer Neurons:")//for debug
-        // console.log(JSON.stringify(this.layer_two_neurons))//for debug
-
+  
         //second to final layer
         this.output_neurons = await this.forward(this.layer_two_neurons,this.output_weights.length,this.output_weights,this.output_biases)
-        // console.log("Output Neurons:")//for debug
-        // console.log(JSON.stringify(this.output_neurons))//for debug
 
         const normalizedOutputs = this.softmax(this.output_neurons);
-        // console.log("Output Normalised Neurons:")//for debug
-        // console.log(JSON.stringify(normalizedOutputs))//for debug
-        const prediction = this.getPrediction(normalizedOutputs);
-        // console.log("Predicted class:", prediction.index, "with probability:", prediction.probability);
 
-        // console.log("predicted",prediction)
+        const prediction = this.getPrediction(normalizedOutputs);
+
         if(prediction.index == expectedLabel){
           this.correct_guesses ++
         }
-        if(iterations == 1){
-          console.log("Output Neurons")
-          console.table(this.output_neurons)
-          console.log(`Answer: ${prediction.index}, Probability: ${prediction.probability}`)
-        }
+        // if(iterations == 1){
+        //   console.log("Output Neurons")
+        //   console.table(this.output_neurons)
+        //   console.log(`Answer: ${prediction.index}, Probability: ${prediction.probability}`)
+        // }
         this.output_biases = new Array(this.output_neurons.length).fill(0);
         clear()
         this.input_neurons = []
     }
     console.log(`Correct ${this.correct_guesses}/${iterations}`);
-    console.log(JSON.stringify(this.softmax(this.output_neurons)));
+    console.log(JSON.stringify(this.output_neurons));
     return this.correct_guesses
   }
 
@@ -162,62 +139,97 @@ class NeuralNetwork{
     return weightedNeurons
   }
 
-  async backpropagation(errors, learningRate) {
-    // Compute error for layer two (hidden layer closer to output)
-    let layer_two_errors = new Array(this.layer_two_neurons.length).fill(0);
+  async backpropagation(errors, learningRate,target) {
+  let output_errors = [];
+  for(let i =0; i < this.output_neurons.length;i++){
+    let t = target[i];
+    let activation = this.output_neurons[i];
+    let error = (t-activation)*this.derivativeSigmoid(activation);
+    output_errors.push(error)
+  }
+  // console.log('output_errors')
+  // console.table(output_errors)//debug
 
-    for (let i = 0; i < this.output_neurons.length; i++) {
-        for (let j = 0; j < this.layer_two_neurons.length; j++) {
-            layer_two_errors[j] += errors[i] * this.output_weights[i][j];
-        }
+  //calculate hidden layer 2
+  let hidden_2_errors = [];
+  for(let i =0; i < this.layer_two_neurons.length;i++){
+    let activation = this.layer_two_neurons[i]
+    let inverse = this.derivativeSigmoid(activation)
+    let sum = 0;
+    for(let j =0; j < this.output_neurons.length; j++){
+      let weight_at_neuron = this.output_weights[j][i];
+      let error_at_neuron = output_errors[j];
+      let product = weight_at_neuron*error_at_neuron
+      sum += product
+    };
+    let neuron_error = inverse*sum
+    hidden_2_errors.push(neuron_error);
+  }
+
+  // console.log('layer 2 errors');
+  // console.table(hidden_2_errors);//debug
+
+   //calculate hidden layers 1
+   let hidden_1_errors = [];
+   for(let i =0; i < this.layer_one_neurons.length;i++){
+     let activation = this.layer_one_neurons[i]
+     let inverse = this.derivativeSigmoid(activation)
+     let sum = 0;
+     for(let j =0; j < this.layer_two_neurons.length; j++){
+       let weight_at_neuron = this.layer_two_weights[j][i];
+       let error_at_neuron = hidden_2_errors[j];
+       let product = weight_at_neuron*error_at_neuron
+       sum += product
+     };
+     let neuron_error = inverse*sum
+     hidden_1_errors.push(neuron_error);
+   }
+ 
+  //  console.log('layer 1 errors');
+  //  console.table(hidden_1_errors);//debug
+
+   //update weights based on errors
+   //output weights
+
+   for (let k = 0; k < this.output_neurons.length; k++) {
+    for (let j = 0; j < this.layer_two_neurons.length; j++) {
+      let delta = output_errors[k]; // δ for output neuron k
+      let activation = this.layer_two_neurons[j]; // activation from hidden layer 2
+      let weightDelta = learningRate * delta * activation;
+      this.output_weights[k][j] += weightDelta;
+    }
+    // Optionally update the bias for the output neuron as well
+    this.output_biases[k] += learningRate * output_errors[k];
     }
 
-    // Compute error for layer one (first hidden layer)
-    let layer_one_errors = new Array(this.layer_one_neurons.length).fill(0);
-    for (let i = 0; i < this.layer_two_neurons.length; i++) {
-        for (let j = 0; j < this.layer_one_neurons.length; j++) {
-            layer_one_errors[j] += layer_two_errors[i] * this.layer_two_weights[i][j];
+    for (let k = 0; k < this.layer_two_neurons.length; k++) {
+      for (let j = 0; j < this.layer_one_neurons.length; j++) {
+        let delta = hidden_2_errors[k]; // δ for output neuron k
+        let activation = this.layer_one_neurons[j]; // activation from hidden layer 2
+        let weightDelta = learningRate * delta * activation;
+        this.layer_one_weights[k][j] += weightDelta;
+      }
+      // Optionally update the bias for the output neuron as well
+      this.layer_two_biases[k] += learningRate * hidden_2_errors[k];
+      }
+
+      for (let k = 0; k < this.layer_one_neurons.length; k++) {
+        for (let j = 0; j < this.input_neurons.length; j++) {
+          let delta = hidden_1_errors[k]; // δ for output neuron k
+          let activation = this.input_neurons[j]; // activation from hidden layer 2
+          let weightDelta = learningRate * delta * activation;
+          this.layer_one_weights[k][j] += weightDelta;
         }
-    }
+        // Optionally update the bias for the output neuron as well
+        this.layer_one_biases[k] += learningRate * hidden_1_errors[k];
+        }
 
-    // Adjust output layer weights
-    this.updateWeights(this.output_weights, errors, this.layer_two_neurons, learningRate);
-    
-    // Adjust second hidden layer weights
-    this.updateWeights(this.layer_two_weights, layer_two_errors, this.layer_one_neurons, learningRate);
-    
-    // Adjust first hidden layer weights
-    this.updateWeights(this.layer_one_weights, layer_one_errors, this.input_neurons, learningRate);
-
-    // Adjust biases
-    this.updateBiases(this.output_biases, errors, learningRate);
-    this.updateBiases(this.layer_two_biases, layer_two_errors, learningRate);
-    this.updateBiases(this.layer_one_biases, layer_one_errors, learningRate);
 }
 
-// Function to update biases
-updateBiases(biases, errors, learningRate) {
-    for (let i = 0; i < biases.length; i++) {
-        biases[i] += learningRate * errors[i];
-    }
-}
-
-
-    /**
-   * Adjusts weights based on error rates.
-   * @param {array} outputs output neurons array
-   * @param {array} errors loss calculation array
-   */
-
-
-  updateWeights(weights, error, previousLayerNeurons, learningRate) {
-    // console.log(error)//for debug
-    for (let i = 0; i < weights.length; i++) {
-        for (let j = 0; j < previousLayerNeurons.length; j++) {
-            weights[i][j] -= learningRate * error[i] * previousLayerNeurons[j];
-        }
-    }
-}
+  updateWeight(neuron,weights,learningRate,error,pos){
+    let weight_delta = learningRate * error * neuron
+    weights[pos][pos] -= weight_delta
+  }
 
   getPrediction(outputNeurons) {
     // Find the index of the neuron with the maximum value
