@@ -282,6 +282,19 @@ class NeuralNetwork{
     return arr
   }
 
+  loadWeights(jsonWeights){
+    this.layer_one_weights = jsonWeights.layer_one_weights;
+    this.layer_two_weights = jsonWeights.layer_two_weights;
+    this.output_weights = jsonWeights.output_weights;
+    this.layer_one_biases = jsonWeights.layer_one_biases;
+    this.layer_two_biases = jsonWeights.layer_two_biases
+    this.output_biases = jsonWeights.output_biases;
+  }
+
+  exportWeights(){
+    saveJSON(network,'weights.json')
+  }
+
 
   loadnextImage(num,datasetFrame) {
     return new Promise((resolve, reject) => {

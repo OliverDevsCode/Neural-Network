@@ -1,8 +1,10 @@
 let dataset;
 let network;
+let existing_weights;
 
 function preload(){
-  dataset = loadImage('dataset/0/0.png')
+  dataset = loadImage('dataset/0/0.png');
+  existing_weights = loadJSON('weights.json');
 }
 
 let trainDigit = 1;
@@ -15,10 +17,12 @@ async function setup() {
   background(255);
   image(dataset, 0, 0, 28, 28)
   network = new NeuralNetwork(784,16,16,10)
+  network.loadWeights(existing_weights)
   console.log("Training....")
-  await network.train(1000,0.01)
+  await network.train(10000,0.01)
+  network.exportWeights()
   console.log("Testing....")
-  await network.test(1,testDigit,testDigit)
+  await network.test(100,testDigit,testDigit)
 
   // await startTraining(100);
   // await testRandom(100)
