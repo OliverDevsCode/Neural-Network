@@ -80,9 +80,9 @@ class NeuralNetwork{
         const targetMatrix = new Matrix(target.length,1,target)
         const errorMatrix = new Matrix(this.output_neurons.length,1,subtract(targetMatrix,outputMatrix))
         if(iterations == 1 ){
-          // console.log("Output Neurons")
-          // console.table(outputMatrix.matrix)
-          // console.table(errorMatrix.matrix)
+          console.log("Output Neurons")
+          console.table(outputMatrix.matrix)
+          console.table(errorMatrix.matrix)
         }
 
         // Backpropagation (Basic Gradient Descent)
@@ -97,8 +97,8 @@ class NeuralNetwork{
         clear()
         this.input_neurons = []
     }
-    // console.log(`Correct ${this.correct_guesses}/${iterations}`);
-    // console.log(JSON.stringify(this.softmax(this.output_neurons)));
+    console.log(`Correct ${this.correct_guesses}/${iterations}`);
+    console.log(JSON.stringify(this.softmax(this.output_neurons)));
   }
 
   async test(iterations,expectedLabel,datasetFrame){
@@ -143,8 +143,8 @@ class NeuralNetwork{
         clear()
         this.input_neurons = []
     }
-    // console.log(`Correct ${this.correct_guesses}/${iterations}`);
-    // console.log(JSON.stringify(this.softmax(this.output_neurons)));
+    console.log(`Correct ${this.correct_guesses}/${iterations}`);
+    console.log(JSON.stringify(this.softmax(this.output_neurons)));
     return this.correct_guesses
   }
 
@@ -202,9 +202,6 @@ updateBiases(biases, errors, learningRate) {
     }
 }
 
-  
-  
-  
 
     /**
    * Adjusts weights based on error rates.
