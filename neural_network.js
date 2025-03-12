@@ -207,7 +207,7 @@ class NeuralNetwork{
         let delta = hidden_2_errors[k]; // δ for output neuron k
         let activation = this.layer_one_neurons[j]; // activation from hidden layer 2
         let weightDelta = learningRate * delta * activation;
-        this.layer_one_weights[k][j] += weightDelta;
+        this.layer_two_weights[k][j] += weightDelta;
       }
       // Optionally update the bias for the output neuron as well
       this.layer_two_biases[k] += learningRate * hidden_2_errors[k];
@@ -274,7 +274,7 @@ class NeuralNetwork{
     let weightArr = []
     for(let j=0;j<(neuron_num);j++){
       // let weight = Math.random() * 0.01 Math.round((Math.random()*6))-3
-      let weight = Math.round((Math.random()*6))-3
+      let weight = Math.round((Math.random()*8))-4 //potentially change this to *8 as sigmoid works best between -4 to 4
       weightArr.push(weight)
     }
     arr.push(weightArr)
