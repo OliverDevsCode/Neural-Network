@@ -13,7 +13,7 @@ async function testRandom(sampleSize){
     console.log(`Testing ${testDigit}`);
     success += await network.test(1,testDigit,testDigit);
   }
-  console.log((success),"/",sampleSize);
+  console.log(`${success}/${sampleSize}`);
 }
 
 function randomInt(min,max){
