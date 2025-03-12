@@ -318,6 +318,7 @@ class NeuralNetwork{
   processImage(){
     console.log("Processing Image")
     background(255);
+    noSmooth()
     image(dataset, 0, 0, 28, 28)
     loadPixels();
     updatePixels()

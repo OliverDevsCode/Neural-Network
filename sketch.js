@@ -18,18 +18,11 @@ async function setup() {
   image(dataset, 0, 0, 28, 28)
   network = new NeuralNetwork(784,16,16,10)
   network.loadWeights(existing_weights)
-  // console.log("Training....")
-  // await network.train(5000,0.01)
+  console.log("Training....")
+  // await network.train(1000,0.1)//learning usually 0.01
   // network.exportWeights()
   console.log("Testing....")
-  await network.test(200,1,1)
-  await network.test(200,2,2)
-  await network.test(200,3,3)
-  await network.test(200,4,4)
-  await network.test(200,5,5)
-  await network.test(200,6,6)
-  await network.test(200,7,7)
-
+  // await network.test(1000,testDigit,testDigit)
   // await startTraining(100);
   await testRandom(5000)
 
@@ -40,6 +33,7 @@ async function setup() {
 function draw() {
   // background(220);
   // background(255);
+  noSmooth()
   image(dataset, 0, 0, 28, 28)
 }
 
