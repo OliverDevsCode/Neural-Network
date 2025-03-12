@@ -8,12 +8,12 @@ async function startTraining(sampleSize){
 
 async function testRandom(sampleSize){
   let success =0;
-  console.log(`Testing ${trainDigit}`)
   for(let i =0; i < sampleSize; i++){
-    let testDigit = randomInt(0,9)
-    success += await network.test(1,testDigit,testDigit)
+    let testDigit = randomInt(0,9);
+    console.log(`Testing ${testDigit}`);
+    success += await network.test(1,testDigit,testDigit);
   }
-  console.log((success))
+  console.log((success),"/",sampleSize);
 }
 
 function randomInt(min,max){
