@@ -19,7 +19,7 @@ async function setup() {
   network = new NeuralNetwork(784,16,16,10)
   network.loadWeights(existing_weights)
   console.log("Training....")
-  // await network.train(15000,0.10)//learning usually 0.01
+  // await network.train(40000,0.02)//learning usually 0.01
   // network.exportWeights()
   console.log("Testing....")
   // await network.test(1000,testDigit,testDigit)

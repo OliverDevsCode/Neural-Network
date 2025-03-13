@@ -36,12 +36,15 @@ class NeuralNetwork{
 
   async train(iterations,learningRate){
     this.correct_guesses = 0
+    let expectedLabel =0;
+    let png_position =0;
     for(let i =0; i < iterations; i++){
 
-        //random number class - label
-        let expectedLabel = randomInt(0,9);
-        //random number png
-        let png_position = randomInt(0,10000);
+        if(expectedLabel == 9){
+          expectedLabel = 0
+          png_position ++
+        }
+        
 
         //get inputs
         await this.loadnextData(png_position,expectedLabel)
@@ -84,6 +87,9 @@ class NeuralNetwork{
         this.output_biases = new Array(this.output_neurons.length).fill(0);
         clear()
         this.input_neurons = []
+
+        expectedLabel ++ //next image
+
     }
     console.log(`Correct ${this.correct_guesses}/${iterations}`);
     console.log(JSON.stringify(this.output_neurons));
