@@ -34,6 +34,45 @@ class NeuralNetwork{
 
   }
 
+  async guessUserDigit(){
+    loadPixels();
+    updatePixels()
+    let grayscaleValues = [];
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let c = get(x, y); // Get color at (x, y)
+        let grayscale = 1-(((c[0] + c[1] + c[2])/3)/255); 
+        grayscaleValues.push(grayscale);
+      }
+    }
+    this.input_neurons = grayscaleValues;
+
+ 
+    //first layer * by weights + biases
+    this.layer_one_neurons = await this.forward(this.input_neurons,this.layer_one_weights.length,this.layer_one_weights,this.layer_one_biases)
+
+    //first layer to second layer 
+    this.layer_two_neurons = await this.forward(this.layer_one_neurons,this.layer_two_weights.length,this.layer_two_weights,this.layer_two_biases)
+
+    //second to final layer
+    this.output_neurons = await this.forward(this.layer_two_neurons,this.output_weights.length,this.output_weights,this.output_biases)
+
+    const normalizedOutputs = this.softmax(this.output_neurons);
+
+    const prediction = this.getPrediction(normalizedOutputs);
+
+    
+    // if(iterations == 1){
+    //   console.log("Output Neurons")
+    //   console.table(this.output_neurons)
+    //   console.log(`Answer: ${prediction.index}, Probability: ${prediction.probability}`)
+    // }
+    this.output_biases = new Array(this.output_neurons.length).fill(0);
+    console.log(`Answer: ${prediction.index}, Probability: ${prediction.probability}`)
+    console.log(normalizedOutputs)
+    return prediction
+  }
+
   async train(iterations,learningRate){
     this.correct_guesses = 0
     let expectedLabel =0;

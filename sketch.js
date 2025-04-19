@@ -10,6 +10,8 @@ function preload(){
 let trainDigit = 1;
 let testDigit = 1;
 
+let mode = 1;
+
 async function setup() {
   createCanvas(400, 400);
   createCanvas(28, 28);
@@ -24,7 +26,9 @@ async function setup() {
   console.log("Testing....")
   // await network.test(1000,testDigit,testDigit)
   // await startTraining(100);
-  await testRandom(5000)
+  // await testRandom(500)
+  submit = createButton('Submit');
+  submit.position(2, 15 + height); // 10px below canvas
 
   // await network.test(1,0,'mineDigits')
 
@@ -34,6 +38,10 @@ function draw() {
   // background(220);
   // background(255);
   noSmooth()
-  image(dataset, 0, 0, 28, 28)
+  // image(dataset, 0, 0, 28, 28)
+
+  if(mode == 1){
+    userInterface()
+  }
 }
 
