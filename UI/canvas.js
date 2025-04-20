@@ -17,9 +17,13 @@ function userInterface() {
 async function guessUserDigit(){
     console.log("Loading User Pixels")
     let result = await network.guessUserDigit()
+    if(networkGuess){
+        networkGuess.remove()
+    }
     networkGuess = createP(`Guess: ${result.index}, Certainity: ${Math.round(result.probability*100)}%`)
     networkGuess.position(0,height + 30)
     console.log(result)
+    background(255);
 }
 
 function mouseDragged(){
