@@ -69,6 +69,7 @@ class NeuralNetwork{
     // }
     this.output_biases = new Array(this.output_neurons.length).fill(0);
     console.log(`Answer: ${prediction.index}, Probability: ${prediction.probability}`)
+    console.log(`output neurons ${this.output_neurons}`)
     console.log(normalizedOutputs)
     return prediction
   }
@@ -243,29 +244,26 @@ class NeuralNetwork{
       let weightDelta = learningRate * delta * activation;
       this.output_weights[k][j] += weightDelta;
     }
-    // Optionally update the bias for the output neuron as well
     this.output_biases[k] += learningRate * output_errors[k];
     }
 
     for (let k = 0; k < this.layer_two_neurons.length; k++) {
       for (let j = 0; j < this.layer_one_neurons.length; j++) {
-        let delta = hidden_2_errors[k]; // δ for output neuron k
+        let delta = hidden_2_errors[k]; 
         let activation = this.layer_one_neurons[j]; // activation from hidden layer 2
         let weightDelta = learningRate * delta * activation;
         this.layer_two_weights[k][j] += weightDelta;
       }
-      // Optionally update the bias for the output neuron as well
       this.layer_two_biases[k] += learningRate * hidden_2_errors[k];
       }
 
       for (let k = 0; k < this.layer_one_neurons.length; k++) {
         for (let j = 0; j < this.input_neurons.length; j++) {
-          let delta = hidden_1_errors[k]; // δ for output neuron k
+          let delta = hidden_1_errors[k]; 
           let activation = this.input_neurons[j]; // activation from hidden layer 2
           let weightDelta = learningRate * delta * activation;
           this.layer_one_weights[k][j] += weightDelta;
         }
-        // Optionally update the bias for the output neuron as well
         this.layer_one_biases[k] += learningRate * hidden_1_errors[k];
         }
 
@@ -277,13 +275,13 @@ class NeuralNetwork{
   }
 
   getPrediction(outputNeurons) {
-    // Find the index of the neuron with the maximum value
+    // find index of the neuron with the maximum value
     let maxIndex = outputNeurons.indexOf(Math.max(...outputNeurons));
     return { index: maxIndex, probability: outputNeurons[maxIndex] };
   }
 
   softmax(arr) {
-    const max = Math.max(...arr); // For numerical stability
+    const max = Math.max(...arr); 
     const exps = arr.map(x => Math.exp(x - max));
     const sum = exps.reduce((a, b) => a + b, 0);
     return exps.map(exp => exp / sum);
@@ -344,7 +342,6 @@ class NeuralNetwork{
   loadnextImage(num,datasetFrame) {
     return new Promise((resolve, reject) => {
       loadImage(`dataset/${datasetFrame}/${num}.png`, (img) => {
-        // Assign the image to a property if needed
         dataset = img;
         // Process the image once loaded
         this.processImage();
